@@ -8,8 +8,9 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, customRef, watch } from 'vue'
 import SlotTag from './components/VSlots.vue'
+import useThrottle from './uses/useThrottle'
 import useWindowSize from './uses/useWindowSize'
 import useRect from './uses/useRect'
 export default {
