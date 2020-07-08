@@ -10,6 +10,7 @@
 <script>
 import { isProxy, getCurrentInstance, nextTick, ref, computed } from 'vue'
 import { useStore, mapState } from 'vuex'
+import { useRouter } from 'vue-router'
 export default {
   name: 'CurrentInstance',
   props: ['info'],
@@ -17,11 +18,18 @@ export default {
     // const currentInstance = getCurrentInstance()
     // const currentContext = currentInstance.ctx
     const store = useStore()
+    const router = useRouter()
     const userInfo = computed(() => store.state.userInfo)
     const userName = computed(() => store.getters.userName)
     // console.log('store', store)
     function setUserInfo() {
       store.commit('SET_USER_INFO', { name: 'yangyong' })
+      router.push({
+        path: '/about',
+        query: {
+          id: 10,
+        },
+      })
     }
 
     // console.log('currentContext:', currentContext)
