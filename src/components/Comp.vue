@@ -10,7 +10,7 @@ export default {
   setup(props) {
     watchEffect(
       (onInvalidate) => {
-        console.log('watchEffect', props.userId)
+        // console.log('watchEffect', props.userId)
       },
       {
         //让侦听函数在组件更新前后执行的参数

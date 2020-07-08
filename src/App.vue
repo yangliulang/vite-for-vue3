@@ -1,18 +1,26 @@
 <template>
   <div>
+    <h3>CurrentInstance:</h3>
+    <CurrentInstance :info="{ name: '杨永' }" data-id="1">
+      <p>default slot</p>
+      <template v-slot:top>
+        <p>slot name top</p>
+      </template>
+    </CurrentInstance>
+    <hr />
     <h3>watchEffect:</h3>
     <TestWatchEffectStoped v-if="isHide" :user-id="userId" />
     <button @click="hide">卸载</button><button @click="setVal">请求</button>
     <hr />
     <h3>shallow 家族Api</h3>
-    <p>测试数据:foo:{{ foo }}</p>
-    <p>测试数据:nested:{{ nested.bar }}</p>
+    <p>测试数据:state:{{ state }}</p>
     <button @click="setVal">设置数据</button>
   </div>
 </template>
 
 <script>
 import TestWatchEffectStoped from './components/Comp.vue'
+import CurrentInstance from './components/CurrentInstance.vue'
 import {
   ref,
   customRef,
@@ -25,20 +33,19 @@ import {
   isReadonly,
   markRaw,
   watchEffect,
+  computed,
 } from 'vue'
+import { useStore } from 'vuex'
 
 export default {
   name: 'App',
   components: {
     TestWatchEffectStoped,
+    CurrentInstance,
   },
   setup() {
-    const state = shallowReadonly({
-      foo: 1,
-      nested: {
-        bar: 2,
-      },
-    })
+    const store = useStore()
+    const state = computed(() => store.state.userInfo)
 
     function setVal() {
       userId.value++
@@ -62,7 +69,8 @@ export default {
     // })
 
     return {
-      ...toRefs(state),
+      // ...toRefs(state),
+      state,
       hide,
       isHide,
       userId,
