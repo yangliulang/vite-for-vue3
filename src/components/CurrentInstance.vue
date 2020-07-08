@@ -8,7 +8,15 @@
   </div>
 </template>
 <script>
-import { isProxy, getCurrentInstance, nextTick, ref, computed } from 'vue'
+import {
+  isProxy,
+  getCurrentInstance,
+  nextTick,
+  onActivated,
+  onDeactivated,
+  ref,
+  computed,
+} from 'vue'
 import { useStore, mapState } from 'vuex'
 import { useRouter } from 'vue-router'
 export default {
@@ -31,7 +39,9 @@ export default {
         },
       })
     }
-
+    // 对元素的css属性就行读写会引发重绘重排
+    // 对样式批量操作，就是说可以定义class名来切换
+    // 执行一些dom操作，在fragment中组装老了，或者线displaynone操作
     // console.log('currentContext:', currentContext)
     // console.log('attrs:', attrs)
     // console.log('slots:', slots.top)
