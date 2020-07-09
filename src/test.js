@@ -1,4 +1,46 @@
-// 单一职责  开放封闭  里式替换  接口隔离  依赖反转
+// 定义响应式数据
+// function defineReactive(object, key, value) {
+//   Object.defineProperty(object, key, {
+//     enumerable: true,
+//     configurable: true,
+//     get() {
+//       console.log(`-----你在取${key}的值------`)
+//       return value
+//     },
+//     set(newVal) {
+//       console.log(`-----你在设置${key}的值------`)
+//       value = newVal
+//     },
+//   })
+//   return object
+// }
+// // 编译模板
+// function compile(root) {
+//   const rootEle = root
+//   const fragment = document.createDocumentFragment()
+//   let firstChild = rootEle.firstChild
+//   while (firstChild) {
+//     fragment.appendChild(firstChild)
+//     firstChild = rootEle.firstChild
+//   }
+//   console.dir(fragment)
+//   rootEle.appendChild(fragment)
+// }
+// const data = {
+//   name: '杨永',
+//   age: 30,
+//   son: {
+//     name: '杨奕瑾',
+//     age: 2,
+//   },
+// }
+
+// const reactiveData = defineReactive(data, 'name', data['name'])
+
+// compile(document.getElementById('vue'))
+
+// console.log(n)
+// console.log(reactiveData)
 // class EventBus {
 //   constructor() {
 //     this.subscribes = {}
