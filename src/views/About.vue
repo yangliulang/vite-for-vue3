@@ -7,7 +7,7 @@ export default {
   name: 'About',
   setup() {
     const route = useRoute()
-    console.log('route', route)
+    // console.log('route', route)
     return {
       route,
     }
