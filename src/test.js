@@ -1,165 +1,92 @@
-// 定义响应式数据
-// function defineReactive(object, key, value) {
-//   Object.defineProperty(object, key, {
-//     enumerable: true,
-//     configurable: true,
-//     get() {
-//       console.log(`-----你在取${key}的值------`)
-//       return value
+const toProxy = new WeakMap();
+const toRaw = new WeakMap();
+function defineReactive(target) {
+  // 判断当前传递进来的target是不是一个对象
+  if (!isObject(target)) {
+    return target;
+  }
+  if (toProxy.has(target)) {
+    return toProxy.get(target);
+  }
+  if (toRaw.has(target)) {
+    return target;
+  }
+  const observed = new Proxy(target, {
+    get(target, key, reveicer) {
+      const ret = Reflect.get(target, key, reveicer);
+      console.log(`正在获取:${key}的值`);
+      // 对就行取值时的对象和key就行副作用函数收集
+      trackEffectCallbacks(target, key);
+
+      return isObject(ret) ? defineReactive(ret) : ret;
+    },
+    set(target, key, value, reveicer) {
+      const ret = Reflect.get(target, key, value, reveicer);
+      console.log(`正在设置:${key}的值为:${value}`);
+      return ret;
+    },
+    deleteProperty(target, key, reveicer) {
+      const ret = Reflect.deleteProperty(target, key, reveicer);
+      console.log(`正在删除:${key}的值`);
+      return ret;
+    }
+  });
+  toProxy.set(target, observed);
+  toRaw.set(observed, target);
+  return observed;
+}
+function isObject(target) {
+  return typeof target === "object" || target === null;
+}
+const targetsMaps = new WeakMap();
+// targetsMaps:{
+//     target1:{
+//         key1:[ef1,ef2],
+//         key2:[ef1,ef2],
 //     },
-//     set(newVal) {
-//       console.log(`-----你在设置${key}的值------`)
-//       value = newVal
-//     },
-//   })
-//   return object
-// }
-// // 编译模板
-// function compile(root) {
-//   const rootEle = root
-//   const fragment = document.createDocumentFragment()
-//   let firstChild = rootEle.firstChild
-//   while (firstChild) {
-//     fragment.appendChild(firstChild)
-//     firstChild = rootEle.firstChild
-//   }
-//   console.dir(fragment)
-//   rootEle.appendChild(fragment)
-// }
-// const data = {
-//   name: '杨永',
-//   age: 30,
-//   son: {
-//     name: '杨奕瑾',
-//     age: 2,
-//   },
-// }
-
-// const reactiveData = defineReactive(data, 'name', data['name'])
-
-// compile(document.getElementById('vue'))
-
-// console.log(n)
-// console.log(reactiveData)
-// class EventBus {
-//   constructor() {
-//     this.subscribes = {}
-//   }
-//   on(eventType, callback) {
-//     if (!this.subscribes[eventType]) {
-//       this.subscribes[eventType] = []
+//     target2:{
+//         key1:[ef1,ef2]
 //     }
-//     this.subscribes[eventType].push(callback)
-//   }
-//   emit(eventType, ...args) {
-//     const callbacks = this.subscribes[eventType]
-//       ? this.subscribes[eventType]
-//       : []
-//     callbacks.forEach((callback) => callback(args))
-//   }
-//   of(eventType, callback) {
-//     if (!callback) {
-//       this.subscribes[eventType] = null
-//     } else {
-//       if (this.subscribes[eventType]) {
-//         const callbackIndex = this.subscribes[eventType].findIndex(
-//           (cb) => cb === callback
-//         )
-//         this.subscribes[eventType].splice(callbackIndex, 1)
-//       }
-//     }
-//   }
 // }
+function trackEffectCallbacks(target, key) {
+  const effect = reactiveEffectStack[reactiveEffectStack.length - 1];
+  if (effect) {
+    // console.log(reactiveEffectStack);
+    const depsMap = targetsMaps.has(target);
+    if (!depsMap) {
+      const keysMap = new WeakMap();
+      targetsMaps.set(target, keysMap);
+    }
+  }
+  //   console.log(target, key);
+}
+const reactiveEffectStack = [];
+function watchEffect(effectFn) {
+  const reactiveFn = function () {
+    try {
+      reactiveEffectStack.push(reactiveFn);
+      effectFn();
+    } finally {
+      reactiveEffectStack.pop();
+    }
+  };
 
-// const event = new EventBus()
-// const cb1 = () => {
-//   console.log('北京天气')
-// }
-// const cb2 = () => {
-//   console.log('江苏天气')
-// }
-// event.on('天气', cb1)
-// event.on('天气', cb2)
-// event.of('天气')
+  reactiveFn();
+}
+const data = {
+  name: "yangyong",
+  age: "33",
+  son: {
+    name: "xiatian",
+    age: 2
+  }
+};
 
-// event.emit('天气', 30)
-// class Store {
-//   constructor(name) {
-//     this.name = name
-//   }
-//   method() {
-//     return this.name
-//   }
-//   createCar() {
-//     throw new Error('这是一个商店抽象类，不能直接调用')
-//   }
-// }
-// class Car extends Store {
-//   constructor(name) {
-//     super(name)
-//     this.name = name
-//   }
-//   createCar(name) {
-//     return name
-//   }
-// }
+const state = defineReactive(data);
 
-// const carA = new Car('audo')
-// console.log(carA)
-// const obj = Object.create(null)
-// console.log(obj)
-// class Person {
-//   constructor(name) {
-//     this.name = name
-//   }
-// }
-
-// const getInstance = (function () {
-//   let instance = null
-//   return function (name) {
-//     return instance || (instance = new Person(name))
-//   }
-// })()
-
-// const a = getInstance('aa')
-// const b = getInstance('bb')
-
-// console.log(a === b)
-// 发布者
-// class Subject {
-//   constructor() {
-//     this.observers = []
-//   }
-//   add(observer) {
-//     this.observers.push(observer)
-//   }
-//   nofiy() {
-//     this.observers.forEach((observer) => observer.update())
-//   }
-// }
-
-//订阅者
-// class Observe {
-//   static observerIndex = 0
-//   constructor(cb) {
-//     this.cb = cb
-//     this.observerIndex = Observe.observerIndex++
-//   }
-//   update() {
-//     this.cb(this.observerIndex)
-//   }
-// }
-
-// const Subjecter = new Subject()
-// Subjecter.add(
-//   new Observe((index) => {
-//     console.log('来自北京的天气通知', index)
-//   })
-// )
-// Subjecter.add(
-//   new Observe((index) => {
-//     console.log('来自江苏的天气通知', index)
-//   })
-// )
-
-// Subjecter.nofiy()
+watchEffect(function effect1() {
+  console.log("effect1", state.name);
+});
+watchEffect(function effect2() {
+  console.log("effect2", state.age);
+});

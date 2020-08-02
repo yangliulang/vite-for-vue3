@@ -1,15 +1,15 @@
 <template>
-  <BScroll />
+  <!-- <BScroll /> -->
   <CurrentInstance />
 </template>
 <script>
-import CurrentInstance from '../components/CurrentInstance.vue'
-import BScroll from '../components/BScroll.vue'
+import CurrentInstance from "../components/CurrentInstance.vue";
+// import BScroll from '../components/BScroll.vue'
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
-    CurrentInstance,
-    BScroll,
-  },
-}
+    CurrentInstance
+    // BScroll,
+  }
+};
 </script>
