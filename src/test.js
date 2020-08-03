@@ -14,20 +14,20 @@ function defineReactive(target) {
   const observed = new Proxy(target, {
     get(target, key, reveicer) {
       const ret = Reflect.get(target, key, reveicer);
-      console.log(`正在获取:${key}的值`);
+      // console.log(`正在获取:${key}的值`);
       // 对就行取值时的对象和key就行副作用函数收集
       trackEffectCallbacks(target, key);
-
       return isObject(ret) ? defineReactive(ret) : ret;
     },
     set(target, key, value, reveicer) {
-      const ret = Reflect.get(target, key, value, reveicer);
-      console.log(`正在设置:${key}的值为:${value}`);
+      const ret = Reflect.set(target, key, value, reveicer);
+      // console.log(`正在设置:${key}的值为:${value}`);
+      triggerEffectCallback(target, key);
       return ret;
     },
     deleteProperty(target, key, reveicer) {
       const ret = Reflect.deleteProperty(target, key, reveicer);
-      console.log(`正在删除:${key}的值`);
+      // console.log(`正在删除:${key}的值`);
       return ret;
     }
   });
@@ -51,14 +51,23 @@ const targetsMaps = new WeakMap();
 function trackEffectCallbacks(target, key) {
   const effect = reactiveEffectStack[reactiveEffectStack.length - 1];
   if (effect) {
-    // console.log(reactiveEffectStack);
-    const depsMap = targetsMaps.has(target);
+    // 先看下targetsMaps有没有target的映射，不存在创建
+    let depsMap = targetsMaps.get(target);
     if (!depsMap) {
-      const keysMap = new WeakMap();
-      targetsMaps.set(target, keysMap);
+      targetsMaps.set(target, (depsMap = new Map()));
     }
+    let dep = depsMap.get(key);
+
+    if (!dep) {
+      depsMap.set(key, (dep = new Set()));
+    }
+    dep.add(effect);
   }
-  //   console.log(target, key);
+}
+function triggerEffectCallback(target, key) {
+  const depsMap = targetsMaps.get(target);
+  const dep = depsMap.get(key);
+  dep.forEach((effect) => effect());
 }
 const reactiveEffectStack = [];
 function watchEffect(effectFn) {
@@ -90,3 +99,5 @@ watchEffect(function effect1() {
 watchEffect(function effect2() {
   console.log("effect2", state.age);
 });
+
+state.name = "4567890";
